@@ -1,0 +1,8 @@
+{
+  "name": "PAWS",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite",
+  "id": "61bf5e87"
+}
