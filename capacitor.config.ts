@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'PAWS',
+  appId: 'com.paws.app',
+  appName: 'paws',
   webDir: 'dist'
 };
 
