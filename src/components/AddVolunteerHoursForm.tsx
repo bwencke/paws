@@ -45,7 +45,11 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
   initialData, // Receive initial data for editing
 }) => {
   const [formData, setFormData] = useState({
-    date: initialData?.date || new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0], // Default to today's date if no initial data
+    date:
+      initialData?.date ||
+      new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 10), // YYYY-MM-DD
     hours: initialData?.hours || '',
     typeId: initialData?.typeId || '',
     locationId: initialData?.locationId || '',

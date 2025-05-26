@@ -58,11 +58,12 @@ body {
 }
 
 ion-toolbar {
-	--background: var(--ion-background-color-step-100);
+	--background: var(--ion-background-color-step-150);
 }
 
 ion-tab-bar {
   padding-bottom: env(safe-area-inset-bottom); /* Ensures compatibility with devices with notches */
+  --background: var(--ion-background-color-step-150);
 }
 
 ion-datetime {

@@ -48,28 +48,7 @@ const HoursPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    async function fetchHours() {
-      if (!userId) return;
-      let { data, error } = await supabase
-        .from('hours')
-        .select(`
-          id,
-          hours,
-          date,
-          type:event_types (
-            id,
-            name
-          ),
-          location:event_locations (
-            id,
-            name
-          )
-        `)
-        .eq('user_id', userId)
-        .order('date');
-      setHourEntries(data || []);
-    }
-    fetchHours();
+    refreshHours();
   }, [userId]);
 
   useEffect(() => {
@@ -151,14 +130,14 @@ const HoursPage: React.FC = () => {
         )
       `)
       .eq('user_id', userId)
-      .order('date');
+      .order('date', { ascending: false });
     setHourEntries(data || []);
   };
 
   const handleEdit = (entry: HourEntry) => {
     setEditEntry({
       id: entry.id,
-      date: new Date(new Date(entry.date) - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0], // Format date as YYYY-MM-DD
+      date: new Date(entry.date).toISOString().split('T')[0], // Format date as YYYY-MM-DD
       hours: entry.hours.toString(), // Convert hours to string for the form
       typeId: entry.type.id.toString(), // Map type.id to typeId as a string
       locationId: entry.location.id.toString(), // Map location.id to locationId as a string
@@ -166,32 +145,57 @@ const HoursPage: React.FC = () => {
     setShowModal(true); // Open the modal
   };
 
+  const groupedByMonth = hourEntries.reduce<Record<string, HourEntry[]>>((acc, entry) => {
+    // Parse date and get month-year key
+    const [year, month] = entry.date.split('-');
+    const dateObj = new Date(Number(year), Number(month) - 1);
+    const monthYear = dateObj.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+    if (!acc[monthYear]) acc[monthYear] = [];
+    acc[monthYear].push(entry);
+    return acc;
+  }, {});
+
   return (
     <IonPage>
       <Header title="Hours" />
       <IonContent>
         <IonList>
-          {hourEntries.map((entry, idx) => (
-            <IonItem key={idx} onClick={() => handleEdit(entry)}>
-              <IonLabel className="ion-text-wrap">
+          {Object.entries(groupedByMonth).map(([monthYear, entries]) => (
+          <div key={monthYear}>
+            <IonItem lines="full" className="ion-text-center">
+              <IonLabel>
+                <h1 style={{ fontWeight: 'bold' }}>{monthYear}</h1>
+              </IonLabel>
+            </IonItem>
+            {entries.map((entry, idx) => (
+              <IonItem key={entry.id} onClick={() => handleEdit(entry)}>
+                <IonLabel className="ion-text-wrap">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <h2>
-                      <b>
-                        {entry.type?.name} at {entry.location?.name}
-                      </b>
-                    </h2>
-                    <p>{new Date(entry.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                  <h2>
+                    <b>
+                    {entry.type?.name} at {entry.location?.name}
+                    </b>
+                  </h2>
+                  <p>
+                    {entry.date
+                    ? (() => {
+                      const [year, month, day] = entry.date.split('-');
+                      const dateObj = new Date(Number(year), Number(month) - 1, Number(day));
+                      const monthName = dateObj.toLocaleString('en-US', { month: 'long' });
+                      return `${monthName} ${day}, ${year}`;
+                      })()
+                    : 'Invalid date'}
+                  </p>
                   </div>
                   <div style={{ fontSize: '1.5rem', textAlign: 'right' }}>
-                    <span style={{ fontWeight: 'bold' }}>{entry.hours}</span> hrs
+                  <span style={{ fontWeight: 'bold' }}>{entry.hours}</span> hrs
                   </div>
                 </div>
-              </IonLabel>
-              {/* <IonButton slot="end" onClick={() => handleEdit(entry)}>
-                Edit
-              </IonButton> */}
-            </IonItem>
+                </IonLabel>
+              </IonItem>
+            ))}
+          </div>
           ))}
         </IonList>
         <IonFab slot="fixed" vertical="bottom" horizontal="end" className="ion-padding">
