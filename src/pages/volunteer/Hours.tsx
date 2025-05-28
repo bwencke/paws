@@ -16,15 +16,10 @@ import { supabase } from '../../../lib/supabase'; // Make sure this path is corr
 import { add } from 'ionicons/icons';
 import { Header } from '../../components/Header';
 import AddVolunteerHoursForm from '../../components/AddVolunteerHoursForm';
-
-// Define the type for an hour entry
-type HourEntry = {
-  id: number;
-  hours: number;
-  date: string;
-  type: { id: number; name: string };
-  location: { id: number; name: string };
-};
+import { HourEntry } from '../../types/volunteerTypes';
+import ThankYouModal from '../../components/ThankYouModal';
+import VolunteerHour from '../../components/VolunteerHour';
+import VolunteerHoursGroupedByMonth from '../../components/VolunteerHoursGroupedByMonth';
 
 const HoursPage: React.FC = () => {
   const [hourEntries, setHourEntries] = useState<HourEntry[]>([]);
@@ -33,6 +28,7 @@ const HoursPage: React.FC = () => {
   const [editEntry, setEditEntry] = useState<HourEntry | null>(null); // State for the entry being edited
   const [eventTypes, setEventTypes] = useState<{ id: number; name: string }[]>([]);
   const [eventLocations, setEventLocations] = useState<{ id: number; name: string }[]>([]);
+  const [showThankYou, setShowThankYou] = useState(false);
 
   useEffect(() => {
     // Get the user ID from the Supabase session
@@ -107,6 +103,7 @@ const HoursPage: React.FC = () => {
 
       if (!error) {
         setShowModal(false); // Close the modal
+        setShowThankYou(true); // Show thank you modal
         refreshHours(); // Refresh the list
       }
     }
@@ -145,59 +142,11 @@ const HoursPage: React.FC = () => {
     setShowModal(true); // Open the modal
   };
 
-  const groupedByMonth = hourEntries.reduce<Record<string, HourEntry[]>>((acc, entry) => {
-    // Parse date and get month-year key
-    const [year, month] = entry.date.split('-');
-    const dateObj = new Date(Number(year), Number(month) - 1);
-    const monthYear = dateObj.toLocaleString('en-US', { month: 'long', year: 'numeric' });
-    if (!acc[monthYear]) acc[monthYear] = [];
-    acc[monthYear].push(entry);
-    return acc;
-  }, {});
-
   return (
     <IonPage>
       <Header title="Hours" />
       <IonContent>
-        <IonList>
-          {Object.entries(groupedByMonth).map(([monthYear, entries]) => (
-          <div key={monthYear}>
-            <IonItem lines="full" className="ion-text-center">
-              <IonLabel>
-                <h1 style={{ fontWeight: 'bold' }}>{monthYear}</h1>
-              </IonLabel>
-            </IonItem>
-            {entries.map((entry, idx) => (
-              <IonItem key={entry.id} onClick={() => handleEdit(entry)}>
-                <IonLabel className="ion-text-wrap">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                  <h2>
-                    <b>
-                    {entry.type?.name} at {entry.location?.name}
-                    </b>
-                  </h2>
-                  <p>
-                    {entry.date
-                    ? (() => {
-                      const [year, month, day] = entry.date.split('-');
-                      const dateObj = new Date(Number(year), Number(month) - 1, Number(day));
-                      const monthName = dateObj.toLocaleString('en-US', { month: 'long' });
-                      return `${monthName} ${day}, ${year}`;
-                      })()
-                    : 'Invalid date'}
-                  </p>
-                  </div>
-                  <div style={{ fontSize: '1.5rem', textAlign: 'right' }}>
-                  <span style={{ fontWeight: 'bold' }}>{entry.hours}</span> hrs
-                  </div>
-                </div>
-                </IonLabel>
-              </IonItem>
-            ))}
-          </div>
-          ))}
-        </IonList>
+        <VolunteerHoursGroupedByMonth hourEntries={hourEntries} onEdit={handleEdit} />
         <IonFab slot="fixed" vertical="bottom" horizontal="end" className="ion-padding">
           <IonFabButton
             onClick={() => {
@@ -219,6 +168,9 @@ const HoursPage: React.FC = () => {
             />
           </IonContent>
         </IonModal>
+        {showThankYou && <ThankYouModal
+          onDismiss={() => setShowThankYou(false)}
+        />}
       </IonContent>
     </IonPage>
   );

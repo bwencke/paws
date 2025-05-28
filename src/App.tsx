@@ -77,7 +77,7 @@ export default function App() {
               <Redirect to="/adoptions" />
             </Route>
           </IonRouterOutlet>
-          <IonTabBar slot="bottom" className="ion-tab-bar">
+          <IonTabBar slot="bottom" className="ion-tab-bar" data-testid="tab-bar">
             <IonTabButton tab="adoptions" href="/adoptions">
               <IonIcon icon={pawOutline} />
               <IonLabel>Adoptions</IonLabel>

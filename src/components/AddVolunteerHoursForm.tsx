@@ -15,9 +15,7 @@ import {
   IonToolbar,
   IonTitle,
 } from '@ionic/react';
-import { FaDog, FaCat, FaPaw } from 'react-icons/fa'; // Example animal icons
-import { LuDog, LuCat, LuPawPrint } from 'react-icons/lu'; // Example animal icons
-import { GiBalloonDog, GiJumpingDog, GiSniffingDog, GiCat, GiHollowCat } from 'react-icons/gi'
+import ThankYouModal from './ThankYouModal';
 
 interface AddVolunteerHoursFormProps {
   eventTypes: { id: number; name: string }[];
@@ -73,42 +71,6 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
     return Object.values(newErrors).every((error) => error === '');
   };
 
-  const dogIcons = [FaDog, FaPaw, LuDog, LuPawPrint, GiBalloonDog, GiJumpingDog, GiSniffingDog];
-  const catIcons = [FaCat, FaPaw, LuCat, LuPawPrint, GiCat, GiHollowCat];
-
-  const [showThankYou, setShowThankYou] = useState(false);
-  const [thankYouMessage, setThankYouMessage] = useState('');
-  const [thankYouIcon, setThankYouIcon] = useState<JSX.Element | null>(null);
-
-  const randomDogMessages = [
-    "You’re paws-itively amazing!",
-    "Thanks fur everything you do!",
-    "You’re the ulti-mutt volunteer!",
-    "We’re mutts about you!",
-    "Howl you ever know how much we appreciate you?",
-    "Your kindness is un-fur-gettable!",
-    "You help us go the extra mile—tails wag because of you!",
-    "You’re paws-down the best!"
-  ]
-  const randomCatMessages = [
-    "You’re purr-fect!",
-    "Thank mew for your hard work!",
-    "You're the cat's whiskers!",
-    "You’re claw-some!",
-    "We’re feline so lucky to have you!",,
-    "Your kindness is un-fur-gettable!",
-    "We’re not lion when we say you’re incredible!",
-    "You’re paws-down the best!"
-  ];
-
-  const generateRandomThankYouContent = () => {
-    const animalType = Math.random() < 0.5 ? {icons: dogIcons, messages: randomDogMessages} : {icons: catIcons, messages: randomCatMessages}; // Randomly choose between dog and cat
-    const randomMessage = animalType.messages[Math.floor(Math.random() * animalType.messages.length)];
-    const Icon = animalType.icons[Math.floor(Math.random() * animalType.icons.length)];
-    setThankYouMessage(randomMessage);
-    setThankYouIcon(<Icon size={100} style={{ marginTop: '200px' }} />);
-  };
-
   const handleInputChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
     setErrors({ ...errors, [field]: '' }); // Clear the error for the field being updated
@@ -117,14 +79,7 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
   const handleSubmit = () => {
     if (validateForm()) {
       onSubmit(formData);
-      generateRandomThankYouContent(); // Generate random content
-      setShowThankYou(true); // Show the Thank You message
     }
-  };
-
-  const handleThankYouDismiss = () => {
-    setShowThankYou(false);
-    onCancel(); // Close the form modal
   };
 
   return (
@@ -207,7 +162,7 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
           <IonButton
             expand="block"
             onClick={handleSubmit}
-            style={{ marginTop: '20px' }} // Add space above the button
+            style={{ marginTop: '20px' }}
           >
             {initialData ? 'Update' : 'Submit'}
           </IonButton>
@@ -215,22 +170,10 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
             expand="block"
             color="light"
             onClick={onCancel}
-            style={{ marginTop: '10px' }} // Add space between the buttons
+            style={{ marginTop: '10px' }}
           >
             Cancel
           </IonButton>
-
-          {/* Thank You Modal */}
-          <IonModal isOpen={showThankYou}>
-            <IonContent className="ion-padding" style={{ textAlign: 'center' }}>
-              {thankYouIcon} {/* Display the pre-generated random icon */}
-              <h1>Thank You!</h1>
-              <p>{thankYouMessage}</p> {/* Display the pre-generated random message */}
-              <IonButton expand="block" onClick={handleThankYouDismiss}>
-                Close
-              </IonButton>
-            </IonContent>
-          </IonModal>
         </IonList>
       </IonContent>
     </IonPage>

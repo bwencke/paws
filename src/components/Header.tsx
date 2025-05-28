@@ -38,7 +38,7 @@ export function Header({ title }: HeaderProps) {
   }, [])
 
   return (
-    <IonHeader style={{ "--background": '--ion-background-color-step-500' }}>
+    <IonHeader style={{ "--background": '--ion-background-color-step-500' }} data-testid="header">
       <IonToolbar>
         <IonButtons slot="start">
           {showBackButton && (
