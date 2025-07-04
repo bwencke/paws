@@ -55,6 +55,11 @@ body {
   --ion-color-primary-contrast-rgb: 255,255,255;
   --ion-color-primary-shade: #cc312e;
   --ion-color-primary-tint: #ea6157;
+
+	--ion-toolbar-color: var(--ion-text-color);
+
+  --swiper-navigation-color: var(--ion-color-medium, #92949c);
+	--swiper-navigation-size: 30px;
 }
 
 ion-toolbar {

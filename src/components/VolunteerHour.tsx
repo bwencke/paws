@@ -8,7 +8,7 @@ interface VolunteerHourProps {
 }
 
 const VolunteerHour: React.FC<VolunteerHourProps> = ({ entry, onEdit }) => (
-  <IonItem key={entry.id} onClick={() => onEdit(entry)}>
+  <IonItem  lines="full" key={entry.id} onClick={() => onEdit(entry)}>
     <IonLabel className="ion-text-wrap">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
@@ -29,7 +29,14 @@ const VolunteerHour: React.FC<VolunteerHourProps> = ({ entry, onEdit }) => (
           </p>
         </div>
         <div style={{ fontSize: '1.5rem', textAlign: 'right' }}>
-          <span style={{ fontWeight: 'bold' }}>{entry.hours}</span> hrs
+          {Number(entry.hours) < 1 ? (
+            <span style={{ fontWeight: 'bold' }}>
+              {Math.round(Number(entry.hours) * 60)}
+            </span>
+          ) : (
+            <span style={{ fontWeight: 'bold' }}>{entry.hours}</span>
+          )}{" "}
+          {Number(entry.hours) < 1 ? 'min' : 'hrs'}
         </div>
       </div>
     </IonLabel>

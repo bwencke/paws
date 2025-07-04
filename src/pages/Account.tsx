@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { IonPage, IonContent, IonButton, IonItem, IonLabel, IonInput, IonList, IonIcon } from '@ionic/react';
-import { Header } from '../../components/Header';
-import { supabase } from '../../../lib/supabase';
+import { Header } from '../components/Header';
+import { supabase } from '../../lib/supabase';
 import { useIonToast } from '@ionic/react';
 import { User } from '@supabase/supabase-js';
-import { formatPhoneNumber } from '../../utils/formatPhone';
+import { formatPhoneNumber } from '../utils/formatPhone';
 import { mailOutline, callOutline } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 
@@ -31,7 +31,7 @@ export function AccountPage() {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('first_name, last_name, phone, avatar_url')
+        .select('first_name, last_name, email, phone, avatar_url')
         .eq('id', user.id)
         .single();
 
@@ -41,6 +41,7 @@ export function AccountPage() {
         setProfile({
           first_name: data.first_name || '',
           last_name: data.last_name || '',
+          email: data.email || '',
           phone: data.phone || '',
           avatar_url: data.avatar_url || ''
         });

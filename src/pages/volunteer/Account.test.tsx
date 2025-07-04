@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { AccountPage } from './Account';
+import { AccountPage } from '../Account';
 import { MemoryRouter } from 'react-router-dom';
 import { vi } from 'vitest';
 

@@ -7,15 +7,17 @@ import {
   IonSelectOption,
   IonDatetime,
   IonButton,
-  IonModal,
   IonContent,
   IonPage,
   IonList,
   IonHeader,
   IonToolbar,
   IonTitle,
+  IonAlert,
+  IonButtons,
+  IonIcon,
 } from '@ionic/react';
-import ThankYouModal from './ThankYouModal';
+import { trash } from 'ionicons/icons';
 
 interface AddVolunteerHoursFormProps {
   eventTypes: { id: number; name: string }[];
@@ -27,6 +29,7 @@ interface AddVolunteerHoursFormProps {
     locationId: string;
   }) => void;
   onCancel: () => void;
+  onDelete?: () => void; // Add this prop for delete
   initialData?: {
     date: string;
     hours: string;
@@ -40,6 +43,7 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
   eventLocations,
   onSubmit,
   onCancel,
+  onDelete, // Add this prop
   initialData, // Receive initial data for editing
 }) => {
   const [formData, setFormData] = useState({
@@ -59,6 +63,8 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
     typeId: '',
     locationId: '',
   });
+
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
 
   const validateForm = () => {
     const newErrors = {
@@ -88,6 +94,13 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
         <IonHeader>
           <IonToolbar>
             <IonTitle>{initialData ? 'Edit Volunteer Hours' : 'Add Volunteer Hours'}</IonTitle>
+            {initialData && onDelete && (
+              <IonButtons slot="end">
+                <IonButton color="danger" onClick={() => setShowDeleteAlert(true)}>
+                  <IonIcon icon={trash} />
+                </IonButton>
+              </IonButtons>
+            )}
           </IonToolbar>
         </IonHeader>
         <IonList inset={true}>
@@ -168,13 +181,36 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
           </IonButton>
           <IonButton
             expand="block"
-            color="light"
+            fill="clear"
             onClick={onCancel}
             style={{ marginTop: '10px' }}
           >
             Cancel
           </IonButton>
         </IonList>
+        {initialData && onDelete && (
+          <IonAlert
+            isOpen={showDeleteAlert}
+            header="Delete Entry"
+            message="Are you sure you want to delete this entry? This action cannot be undone."
+            buttons={[
+              {
+                text: 'Cancel',
+                role: 'cancel',
+                handler: () => setShowDeleteAlert(false),
+              },
+              {
+                text: 'Delete',
+                role: 'destructive',
+                handler: () => {
+                  setShowDeleteAlert(false);
+                  onDelete();
+                },
+              },
+            ]}
+            onDidDismiss={() => setShowDeleteAlert(false)}
+          />
+        )}
       </IonContent>
     </IonPage>
   );
