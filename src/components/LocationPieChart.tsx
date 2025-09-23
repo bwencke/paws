@@ -1,8 +1,9 @@
 import React from 'react';
 import { Pie } from 'react-chartjs-2';
+import { HourEntry } from '../types/volunteerTypes';
 
 interface LocationPieChartProps {
-  hours: { location?: { name?: string } | null; hours: number | string }[];
+  hours: HourEntry[];
 }
 
 const locationOrder = ['Cattery', 'Petsmart', 'Tractor Supply', 'Foster'];
@@ -17,7 +18,7 @@ const LocationPieChart: React.FC<LocationPieChartProps> = ({ hours }) => {
   // Build hours map
   const locationHoursMap: Record<string, number> = {};
   hours.forEach(entry => {
-    const locationName = entry.location?.name || 'Unknoen';
+    const locationName = entry.location || 'Unknown';
     const h = typeof entry.hours === 'number' ? entry.hours : parseFloat(entry.hours);
     locationHoursMap[locationName] = (locationHoursMap[locationName] || 0) + h;
   });

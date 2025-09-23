@@ -4,8 +4,8 @@ import {
   IonFab, IonFabButton, IonModal, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonInput, IonToast, IonAlert
 } from '@ionic/react';
 import { chevronForwardOutline, add, trash } from 'ionicons/icons';
-import { Header } from '../../components/Header';
-import { supabase } from '../../../lib/supabase';
+import { Header } from '../../../components/Header';
+import { supabase } from '../../../../lib/supabase';
 
 type User = {
   id?: string;
@@ -106,7 +106,7 @@ const ManageUsersPage: React.FC = () => {
   if (loading) {
     return (
       <IonPage>
-        <Header title="Manage Users" />
+        <Header title="Manage Users" showBackButton={true} />
         <IonContent fullscreen>
           <IonList>
             {[...Array(10)].map((_, idx) => (

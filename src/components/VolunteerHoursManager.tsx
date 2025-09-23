@@ -8,10 +8,9 @@ import {
 } from '@ionic/react';
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { add } from 'ionicons/icons';
+import { add, time } from 'ionicons/icons';
 import AddVolunteerHoursForm from './AddVolunteerHoursForm';
 import { HourEntry } from '../types/volunteerTypes';
-import ThankYouModal from './ThankYouModal';
 import VolunteerHoursGroupedByMonth from './VolunteerHoursGroupedByMonth';
 import VolunteerHoursGroupedByMonthSkeleton from './VolunteerHoursGroupedByMonthSkeleton';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -23,6 +22,7 @@ import LocationPieChart from './LocationPieChart';
 import TypePieChart from './TypePieChart';
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
 import { useVolunteerHours } from '../hooks/useVolunteerHours';
+import VolunteerHoursPieCharts from './VolunteerHoursPieCharts';
 
 Chart.register(ArcElement, Tooltip, Legend);
 
@@ -43,7 +43,6 @@ const VolunteerHoursManager: React.FC<VolunteerHoursManagerProps> = ({ userId })
   const [editEntry, setEditEntry] = useState<HourEntry | null>(null);
   const [eventTypes, setEventTypes] = useState<{ id: number; name: string }[]>([]);
   const [eventLocations, setEventLocations] = useState<{ id: number; name: string }[]>([]);
-  const [showThankYou, setShowThankYou] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -85,8 +84,7 @@ const VolunteerHoursManager: React.FC<VolunteerHoursManagerProps> = ({ userId })
     } else {
       const { error } = await createHourEntry(formData);
       if (!error) {
-        setShowModal(false);
-        setShowThankYou(true);
+        setShowModal(false)
       }
     }
   };
@@ -96,8 +94,8 @@ const VolunteerHoursManager: React.FC<VolunteerHoursManagerProps> = ({ userId })
       id: entry.id,
       date: new Date(entry.date).toISOString().split('T')[0],
       hours: entry.hours.toString(),
-      typeId: entry.type.id.toString(),
-      locationId: entry.location.id.toString(),
+      typeId: entry.type_id.toString(),
+      locationId: entry.location_id.toString(),
     });
     setShowModal(true);
   };
@@ -118,34 +116,6 @@ const VolunteerHoursManager: React.FC<VolunteerHoursManagerProps> = ({ userId })
   // --- SUM HOURS ---
   const totalHours = hourEntries.reduce((sum, entry) => sum + (typeof entry.hours === 'number' ? entry.hours : parseFloat(entry.hours)), 0);
 
-  const hoursPieCharts = () => (
-    <Swiper
-      style={{ marginTop: '1rem' }}
-      spaceBetween={16}
-      slidesPerView={1}
-      pagination={{ clickable: true }}
-      modules={[Navigation]}
-      navigation
-    >
-      <SwiperSlide>
-        <div style={{ maxWidth: '75%', margin: '0 auto' }}>
-          <LocationPieChart hours={hourEntries} />
-          <div style={{ fontSize: '0.95rem', color: 'var(--ion-color-medium)', margin: '1rem 0' }}>
-            Hours by Location
-          </div>
-        </div>
-      </SwiperSlide>
-      <SwiperSlide>
-        <div style={{ maxWidth: '75%', margin: '0 auto' }}>
-          <TypePieChart hours={hourEntries} />
-          <div style={{ fontSize: '0.95rem', color: 'var(--ion-color-medium)', margin: '1rem 0' }}>
-            Hours by Type
-          </div>
-        </div>
-      </SwiperSlide>
-    </Swiper>
-  );
-
   if (isLoading) {
     return <VolunteerHoursGroupedByMonthSkeleton />;
   }
@@ -164,23 +134,24 @@ const VolunteerHoursManager: React.FC<VolunteerHoursManagerProps> = ({ userId })
     </div>
   )
 
-  return (
+  const volunteerHours = (
     <>
       <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
         <h1>
           <b>Your Volunteer Hours</b>
         </h1>
-        {hourEntries.length > 0 && (
-          <div style={{ fontSize: '1.1rem', color: 'var(--ion-color-medium)' }}>
-            Total Hours: <b>{totalHours.toFixed(1)}</b>
-          </div>
-        )}
-        {hourEntries.length > 0 && hoursPieCharts()}
+        <div style={{ fontSize: '1.1rem', color: 'var(--ion-color-medium)' }}>
+          Total Hours: <b>{totalHours.toFixed(1)}</b>
+        </div>
+        <VolunteerHoursPieCharts hourEntries={hourEntries} />
       </div>
-      {hourEntries.length === 0 
-        ? emptyState
-        : <VolunteerHoursGroupedByMonth hourEntries={hourEntries} onEdit={handleEdit} />
-      }
+      <VolunteerHoursGroupedByMonth hourEntries={hourEntries} onEdit={handleEdit} />
+    </>
+  )
+
+  return (
+    <>
+      {hourEntries.length > 0 ? volunteerHours : emptyState}
       <IonFab slot="fixed" vertical="bottom" horizontal="end" className="ion-padding">
         <IonFabButton
           onClick={() => {
@@ -203,9 +174,6 @@ const VolunteerHoursManager: React.FC<VolunteerHoursManagerProps> = ({ userId })
           />
         </IonContent>
       </IonModal>
-      {showThankYou && (
-        <ThankYouModal onDismiss={() => setShowThankYou(false)} />
-      )}
       <IonToast
         isOpen={!!toastMessage}
         message={toastMessage || ''}

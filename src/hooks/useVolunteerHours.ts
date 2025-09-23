@@ -10,25 +10,47 @@ export function useVolunteerHours(userId: string) {
     if (!userId) return;
     setIsLoading(true);
     const { data } = await supabase
-      .from('hours')
+      .from('hours_with_details')
       .select(`
         id,
         hours,
         date,
-        type:event_types (
-          id,
-          name
-        ),
-        location:event_locations (
-          id,
-          name
-        )
+        type_id,
+        type,
+        location_id,
+        location,
+        user_id,
+        first_name,
+        last_name,
+        email
       `)
       .eq('user_id', userId)
       .order('date', { ascending: false });
     setHourEntries(data || []);
     setIsLoading(false);
   }, [userId]);
+
+  const fetchAllHourEntries = useCallback(async () => {
+    setIsLoading(true);
+    const { data } = await supabase
+      .from('hours_with_details')
+      .select(`
+        id,
+        hours,
+        date,
+        type_id,
+        type,
+        location_id,
+        location,
+        user_id,
+        first_name,
+        last_name,
+        email
+      `)
+      .order('date', { ascending: false });
+    setHourEntries(data || []);
+    setIsLoading(false);
+  }, []);
 
   const createHourEntry = useCallback(async (formData: {
     date: string;
@@ -83,6 +105,7 @@ export function useVolunteerHours(userId: string) {
     hourEntries,
     isLoading,
     fetchHourEntries,
+    fetchAllHourEntries,
     createHourEntry,
     updateHourEntry,
     deleteHourEntry,

@@ -18,6 +18,7 @@ import {
   IonIcon,
 } from '@ionic/react';
 import { trash } from 'ionicons/icons';
+import ThankYouModal from './ThankYouModal';
 
 interface AddVolunteerHoursFormProps {
   eventTypes: { id: number; name: string }[];
@@ -65,6 +66,7 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
   });
 
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [showThankYou, setShowThankYou] = useState(false);
 
   const validateForm = () => {
     const newErrors = {
@@ -84,8 +86,13 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
 
   const handleSubmit = () => {
     if (validateForm()) {
-      onSubmit(formData);
+      setShowThankYou(true);
     }
+  };
+
+  const closeThankYou = () => {
+    onSubmit(formData);
+    setShowThankYou(false);
   };
 
   return (
@@ -96,7 +103,7 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
             <IonTitle>{initialData ? 'Edit Volunteer Hours' : 'Add Volunteer Hours'}</IonTitle>
             {initialData && onDelete && (
               <IonButtons slot="end">
-                <IonButton color="danger" onClick={() => setShowDeleteAlert(true)}>
+                <IonButton color="danger" data-testid="delete-button" onClick={() => setShowDeleteAlert(true)}>
                   <IonIcon icon={trash} />
                 </IonButton>
               </IonButtons>
@@ -131,12 +138,13 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
           <IonItem>
             <IonLabel>
               <IonSelect
-                label="Type"
+                data-testid="activity-select"
+                label="Activity"
                 labelPlacement="stacked"
-                placeholder="Choose the type of event you participated in"
+                placeholder="Choose the activity you participated in"
                 interfaceOptions={{
-                  header: 'Select Event Type',
-                  subHeader: 'Choose the type of event you participated in',
+                  header: 'Select Activity',
+                  subHeader: 'Choose the activity you participated in',
                 }}
                 value={formData.typeId} // Ensure this matches the `value` of IonSelectOption
                 onIonChange={(e) => handleInputChange('typeId', e.detail.value!)}
@@ -153,6 +161,7 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
           <IonItem>
             <IonLabel>
               <IonSelect
+                data-testid="location-select"
                 label="Location"
                 labelPlacement="stacked"
                 placeholder="Choose the location of the event"
@@ -212,6 +221,9 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
           />
         )}
       </IonContent>
+      {showThankYou && (
+        <ThankYouModal onDismiss={closeThankYou} />
+      )}
     </IonPage>
   );
 };

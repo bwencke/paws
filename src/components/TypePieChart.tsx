@@ -1,8 +1,9 @@
 import React from 'react';
 import { Pie } from 'react-chartjs-2';
+import { HourEntry } from '../types/volunteerTypes';
 
 interface TypePieChartProps {
-  hours: { type?: { name?: string } | null; hours: number | string }[];
+  hours: HourEntry[];
 }
 
 const typeOrder = ['Cleaning', 'Adoption Event', 'Fostering'];
@@ -16,7 +17,7 @@ const TypePieChart: React.FC<TypePieChartProps> = ({ hours }) => {
   // Build hours map
   const typeHoursMap: Record<string, number> = {};
   hours.forEach(entry => {
-    const typeName = entry.type?.name || 'Unknown';
+    const typeName = entry.type || 'Unknown';
     const h = typeof entry.hours === 'number' ? entry.hours : parseFloat(entry.hours);
     typeHoursMap[typeName] = (typeHoursMap[typeName] || 0) + h;
   });

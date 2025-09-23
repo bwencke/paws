@@ -47,7 +47,7 @@ const ThankYouModal: React.FC<ThankYouModalProps> = ({ onDismiss }) => {
         {icon}
         <h1>Thank You!</h1>
         <p>{message}</p>
-        <IonButton expand="block" onClick={onDismiss}>
+        <IonButton expand="block" onClick={onDismiss} data-testid="close-btn">
           Close
         </IonButton>
       </IonContent>
