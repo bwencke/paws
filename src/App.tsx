@@ -2,7 +2,7 @@ import { Redirect, Route } from 'react-router-dom'
 import { IonApp, IonLabel, IonIcon, IonRouterOutlet, IonTabBar, IonTabButton, setupIonicReact, IonTabs } from '@ionic/react'
 import { IonReactRouter } from '@ionic/react-router'
 import { supabase } from '../lib/supabase'
-import { calendarOutline, pawOutline, peopleOutline, timeOutline, shieldOutline } from 'ionicons/icons'
+import { timeOutline, shieldOutline } from 'ionicons/icons'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { App as CapacitorApp } from '@capacitor/app'
 
@@ -10,17 +10,15 @@ import '@ionic/react/css/ionic.bundle.css'
 
 /* Theme variables */
 import './theme/variables.css'
-import { LoginPage } from './components/Login'
-import { AccountPage } from './pages/Account'
+import { AccountPage } from './pages/account/Account'
 import { useEffect, useState } from 'react'
-import { Session } from '@supabase/supabase-js'
-import { ChangeEmailPage } from './pages/ChangeEmail'
-import { AdoptionsPage } from './pages/Adoptions'
-import EventsPage from './pages/Events'
-import HoursPage from './pages/volunteer/Hours'
 import VolunteerPage from './pages/volunteer/Volunteer'
 import AdminPage from './pages/admin/AdminPage'
-import ManageUsersPage from './pages/admin/ManageUsersPage'
+import ManageUsersPage from './pages/admin/manage/ManageUsersPage'
+import ManageActivitiesPage from './pages/admin/manage/ManageActivitiesPage'
+import ManageLocationsPage from './pages/admin/manage/ManageLocationsPage'
+import AllVolunteerHoursListPage from './pages/admin/view/AllVolunteerHoursPage'
+import AllVolunteerHoursPage from './pages/admin/view/AllVolunteerHoursPage'
 
 setupIonicReact()
 
@@ -37,14 +35,9 @@ CapacitorApp.addListener('appRestoredResult', data => {
   console.log('Restored state:', data);
 });
 
-const checkAppLaunchUrl = async () => {
-  const { url } = await CapacitorApp.getLaunchUrl();
-  console.log('App opened with URL: ' + url);
-};
-
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null)
-  const [isAdmin, setIsAdmin] = useState<boolean>(false) // <-- Add isAdmin state
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null) // <-- Use null for loading state
 
   const setupStatusBar = async () => {
     await StatusBar.setBackgroundColor({ color: '#ffffff' });
@@ -67,7 +60,6 @@ export default function App() {
           .eq('id', session.user.id)
           .single()
           .then(({ data: profile }) => {
-            console.log('User profile (initial):', profile);
             setIsAdmin(profile?.is_admin === true);
           })
           .catch(() => setIsAdmin(false));
@@ -87,7 +79,6 @@ export default function App() {
           .eq('id', session.user.id)
           .single()
           .then(({ data: profile }) => {
-            console.log('User profile (updated):', profile);
             setIsAdmin(profile?.is_admin === true);
           })
           .catch(() => setIsAdmin(false));
@@ -96,14 +87,18 @@ export default function App() {
       }
     });
 
-    checkAppLaunchUrl();
-
     return () => subscription.unsubscribe();
   }, []);
 
-  // Show nothing while checking auth state
-  if (isLoggedIn === null) {
-    return null
+  // Show loading spinner while checking auth/admin state
+  if (isLoggedIn === null || isAdmin === null) {
+    return (
+      <IonApp>
+        <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
+          <span>Loading...</span>
+        </div>
+      </IonApp>
+    )
   }
 
   return (
@@ -111,18 +106,13 @@ export default function App() {
       <IonReactRouter>
         <IonTabs>
           <IonRouterOutlet>
-            {/* <Route exact path="/adoptions" render={() => <AdoptionsPage />} />
-            <Route exact path="/events" render={() => <EventsPage />} /> */}
-            {/* <Route exact path="/volunteer/login" render={() => <LoginPage />} /> */}
-
-            {/* <Route exact path="/volunteer/hours" render={() => <HoursPage />} /> */}
-            {/* <Route exact path="/">
-              <Redirect to="/volunteer" />
-            </Route> */}
-            <Route exact path="/:tab(volunteer)" render={() => <VolunteerPage />} />
-            <Route exact path="/:tab(admin)" render={() => <AdminPage />} />
-            <Route exact path="/:tab(admin)/manage-users" render={() => <ManageUsersPage />} />
-            <Route exact path="/:tab(account)" render={() => <AccountPage />} />
+            <Route exact path="/:tab(volunteer)" component={VolunteerPage} />
+            <Route exact path="/:tab(admin)" component={AdminPage} />
+            <Route exact path="/:tab(admin)/view/all-volunteer-hours" component={AllVolunteerHoursPage} />
+            <Route exact path="/:tab(admin)/manage/users" component={ManageUsersPage} />
+            <Route exact path="/:tab(admin)/manage/activities" component={ManageActivitiesPage} />
+            <Route exact path="/:tab(admin)/manage/locations" component={ManageLocationsPage} />
+            <Route exact path="/:tab(account)" component={AccountPage} />
             <Redirect exact from="/" to="/volunteer" />
           </IonRouterOutlet>
           {isLoggedIn && isAdmin && (
@@ -137,20 +127,6 @@ export default function App() {
               </IonTabButton>
             </IonTabBar>
           )}
-          {/* <IonTabBar slot="bottom" className="ion-tab-bar" data-testid="tab-bar">
-            <IonTabButton tab="adoptions" href="/adoptions">
-              <IonIcon icon={pawOutline} />
-              <IonLabel>Adoptions</IonLabel>
-            </IonTabButton>
-            <IonTabButton tab="events" href="/events">
-              <IonIcon icon={calendarOutline} />
-              <IonLabel>Events</IonLabel>
-            </IonTabButton>
-            <IonTabButton tab="volunteer" href="/volunteer">
-              <IonIcon icon={peopleOutline} />
-              <IonLabel>Volunteer</IonLabel>
-            </IonTabButton>
-          </IonTabBar> */}
         </IonTabs>
       </IonReactRouter>
     </IonApp>

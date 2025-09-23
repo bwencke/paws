@@ -4,17 +4,21 @@ import { HourEntry } from '../types/volunteerTypes';
 
 interface VolunteerHourProps {
   entry: HourEntry;
+  showUser?: boolean;
   onEdit: (entry: HourEntry) => void;
 }
 
-const VolunteerHour: React.FC<VolunteerHourProps> = ({ entry, onEdit }) => (
+const VolunteerHour: React.FC<VolunteerHourProps> = ({ entry, showUser = false, onEdit }) => (
   <IonItem  lines="full" key={entry.id} onClick={() => onEdit(entry)}>
     <IonLabel className="ion-text-wrap">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
+          {showUser && <p>
+            {entry.first_name} {entry.last_name}
+          </p>}
           <h2>
             <b>
-              {entry.type?.name} at {entry.location?.name}
+              {entry.type} at {entry.location}
             </b>
           </h2>
           <p>
@@ -36,7 +40,11 @@ const VolunteerHour: React.FC<VolunteerHourProps> = ({ entry, onEdit }) => (
           ) : (
             <span style={{ fontWeight: 'bold' }}>{entry.hours}</span>
           )}{" "}
-          {Number(entry.hours) < 1 ? 'min' : 'hrs'}
+          {Number(entry.hours) === 1
+            ? 'hr'
+            : Number(entry.hours) < 1
+            ? 'min'
+            : 'hrs'}
         </div>
       </div>
     </IonLabel>

@@ -1,21 +1,22 @@
 import { useEffect, useState } from 'react';
 import { IonPage, IonContent, IonButton, IonItem, IonLabel, IonInput, IonList, IonIcon } from '@ionic/react';
-import { Header } from '../components/Header';
-import { supabase } from '../../lib/supabase';
+import { Header } from '../../components/Header';
+import { supabase } from '../../../lib/supabase';
 import { useIonToast } from '@ionic/react';
-import { User } from '@supabase/supabase-js';
-import { formatPhoneNumber } from '../utils/formatPhone';
+import { formatPhoneNumber } from '../../utils/formatPhone';
 import { mailOutline, callOutline } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
+import { useSupabaseUser } from '../../hooks/useSupabaseUser';
 
 export function AccountPage() {
+  const userId = useSupabaseUser();
   const [profile, setProfile] = useState({
     first_name: '',
     last_name: '',
     phone: '',
-    avatar_url: ''
+    avatar_url: '',
+    email: ''
   });
-  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showToast] = useIonToast();
   const history = useHistory();
@@ -23,16 +24,12 @@ export function AccountPage() {
   const getProfile = async () => {
     setIsLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) throw new Error('No user found');
-      
-      setUser(user);
+      if (!userId) throw new Error('No user found');
 
       const { data, error } = await supabase
         .from('profiles')
         .select('first_name, last_name, email, phone, avatar_url')
-        .eq('id', user.id)
+        .eq('id', userId)
         .single();
 
       if (error) throw error;
@@ -71,10 +68,6 @@ export function AccountPage() {
         duration: 3000,
         color: 'success'
       });
-      
-      // Refresh user data
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
     } catch (error: any) {
       showToast({
         message: error.message,
@@ -87,7 +80,6 @@ export function AccountPage() {
   };
 
   const handlePhoneChange = (value: string) => {
-    // Strip non-digits for storage
     const cleaned = value.replace(/\D/g, '');
     updatePhone(cleaned);
   };
@@ -109,8 +101,10 @@ export function AccountPage() {
   };
 
   useEffect(() => {
-    getProfile();
-  }, []);
+    if (userId) {
+      getProfile();
+    }
+  }, [userId]);
 
   return (
     <IonPage>
@@ -123,7 +117,7 @@ export function AccountPage() {
           <IonItem>
             <p style={{ display: 'flex', alignItems: 'center' }}>
               <IonIcon icon={mailOutline} className="ion-margin-end" /> 
-              {user?.email}
+              {profile.email}
             </p>
           </IonItem>
           <IonItem lines="none">

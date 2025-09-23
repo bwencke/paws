@@ -12,3 +12,9 @@ window.matchMedia = window.matchMedia || function() {
       removeListener: function() {}
   };
 };
+global.IntersectionObserver = class {
+  constructor() {}
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};

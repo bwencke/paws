@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import { vi } from 'vitest';
 import VolunteerHoursGroupedByMonth from './VolunteerHoursGroupedByMonth';
 
 const mockEntries = [
@@ -6,22 +7,37 @@ const mockEntries = [
     id: 1,
     hours: 2,
     date: '2024-06-01',
-    type: { id: 1, name: 'Dog Walking' },
-    location: { id: 1, name: 'Shelter A' },
+    type: 'Dog Walking',
+    location: 'Shelter A',
+    type_id: 1,
+    location_id: 1,
+    first_name: 'John',
+    last_name: 'Doe',
+    user_id: 'user1',
   },
   {
     id: 2,
     hours: 3,
     date: '2024-06-15',
-    type: { id: 2, name: 'Cat Cuddling' },
-    location: { id: 2, name: 'Shelter B' },
+    type: 'Cat Cuddling',
+    location: 'Shelter B',
+    type_id: 2,
+    location_id: 2,
+    first_name: 'Jane',
+    last_name: 'Smith',
+    user_id: 'user2',
   },
   {
     id: 3,
     hours: 1,
     date: '2024-05-20',
-    type: { id: 1, name: 'Dog Walking' },
-    location: { id: 1, name: 'Shelter A' },
+    type: 'Dog Walking',
+    location: 'Shelter A',
+    type_id: 1,
+    location_id: 1,
+    first_name: 'John',
+    last_name: 'Doe',
+    user_id: 'user1',
   },
 ];
 
@@ -31,15 +47,16 @@ describe('VolunteerHoursGroupedByMonth', () => {
     expect(screen.getByTestId('volunteer-hours-grouped-by-month-list')).toBeInTheDocument();
     expect(screen.getByText('June 2024')).toBeInTheDocument();
     expect(screen.getByText('May 2024')).toBeInTheDocument();
-    expect(screen.getByText(/Dog Walking at Shelter A/)).toBeInTheDocument();
+    // There should be two 'Dog Walking at Shelter A' entries
+    expect(screen.getAllByText(/Dog Walking at Shelter A/)).toHaveLength(2);
     expect(screen.getByText(/Cat Cuddling at Shelter B/)).toBeInTheDocument();
   });
 
   it('calls onEdit when a VolunteerHour is clicked', () => {
     const onEdit = vi.fn();
     render(<VolunteerHoursGroupedByMonth hourEntries={mockEntries} onEdit={onEdit} />);
-    // Find all VolunteerHour list items and click the first one
-    const items = screen.getAllByRole('listitem');
+    // Find all IonItem elements and click the first non-header one
+    const items = screen.getAllByText(/Dog Walking at Shelter A/);
     fireEvent.click(items[0]);
     expect(onEdit).toHaveBeenCalled();
   });

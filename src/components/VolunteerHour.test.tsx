@@ -1,12 +1,18 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import { vi } from 'vitest';
 import VolunteerHour from './VolunteerHour';
 
 const mockEntry = {
   id: 1,
   hours: 3,
   date: '2024-06-01',
-  type: { id: 2, name: 'Dog Walking' },
-  location: { id: 5, name: 'Shelter A' },
+  type: 'Dog Walking',
+  location: 'Shelter A',
+  type_id: 2,
+  location_id: 5,
+  first_name: 'John',
+  last_name: 'Doe',
+  user_id: 'user1',
 };
 
 describe('VolunteerHour', () => {
@@ -21,7 +27,7 @@ describe('VolunteerHour', () => {
   it('calls onEdit with entry when clicked', () => {
     const onEdit = vi.fn();
     render(<VolunteerHour entry={mockEntry} onEdit={onEdit} />);
-    fireEvent.click(screen.getByRole('listitem'));
+    fireEvent.click(screen.getByText(/Dog Walking at Shelter A/));
     expect(onEdit).toHaveBeenCalledWith(mockEntry);
   });
 

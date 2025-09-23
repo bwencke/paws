@@ -4,11 +4,13 @@ import VolunteerHour from './VolunteerHour';
 import { HourEntry } from '../types/volunteerTypes';
 
 interface VolunteerHoursGroupedByMonthProps {
+  showUser?: boolean;
   hourEntries: HourEntry[];
   onEdit: (entry: HourEntry) => void;
 }
 
 const VolunteerHoursGroupedByMonth: React.FC<VolunteerHoursGroupedByMonthProps> = ({
+  showUser,
   hourEntries,
   onEdit,
 }) => {
@@ -31,7 +33,7 @@ const VolunteerHoursGroupedByMonth: React.FC<VolunteerHoursGroupedByMonthProps> 
             </IonLabel>
           </IonItem>
           {entries.map((entry) => (
-            <VolunteerHour key={entry.id} entry={entry} onEdit={onEdit} />
+            <VolunteerHour key={entry.id} showUser={showUser} entry={entry} onEdit={onEdit} />
           ))}
         </div>
       ))}

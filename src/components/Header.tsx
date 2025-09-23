@@ -12,20 +12,21 @@ import { useSupabaseUser } from '../hooks/useSupabaseUser'; // <-- import the ho
 
 interface HeaderProps {
   title: string;
+  showBackButton?: boolean;
 }
 
-export function Header({ title }: HeaderProps) {
+export function Header({ title, showBackButton = true }: HeaderProps) {
   const user = useSupabaseUser(); // <-- use the hook
 
   return (
     <IonHeader style={{ "--background": '--ion-background-color-step-500' }} data-testid="header">
       <IonToolbar>
         <IonButtons slot="start">
-          <IonBackButton />
+          {showBackButton && <IonBackButton />}
         </IonButtons>
         <IonTitle>{title}</IonTitle>
         <IonButtons slot="end">
-          {user && <IonButton routerLink="/account" fill="clear">
+          {user && <IonButton data-testid="account-button" routerLink="/account" fill="clear">
             <IonIcon 
               icon={personCircleOutline} 
               slot="icon-only"
