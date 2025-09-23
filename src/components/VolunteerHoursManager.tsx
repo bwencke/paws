@@ -94,8 +94,8 @@ const VolunteerHoursManager: React.FC<VolunteerHoursManagerProps> = ({ userId })
       id: entry.id,
       date: new Date(entry.date).toISOString().split('T')[0],
       hours: entry.hours.toString(),
-      typeId: entry.type.id.toString(),
-      locationId: entry.location.id.toString(),
+      typeId: entry.type_id.toString(),
+      locationId: entry.location_id.toString(),
     });
     setShowModal(true);
   };
