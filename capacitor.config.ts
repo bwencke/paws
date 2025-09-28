@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.paws.app',
+  appId: 'com.hancockpaws.app',
   appName: 'paws',
   webDir: 'dist',
   plugins: {
