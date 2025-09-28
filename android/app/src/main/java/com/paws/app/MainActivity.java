@@ -1,4 +1,4 @@
-package com.paws.app;
+package com.hancockpaws.app;
 
 import com.getcapacitor.BridgeActivity;
 
