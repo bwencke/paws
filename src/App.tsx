@@ -57,15 +57,17 @@ export default function App() {
 
       if (session) {
         // Fetch user profile to check is_admin, but don't block UI
-        supabase
+        void supabase
           .from('profiles')
           .select('is_admin')
           .eq('id', session.user.id)
           .single()
-          .then(({ data: profile }) => {
-            setIsAdmin(profile?.is_admin === true);
-          })
-          .catch(() => setIsAdmin(false));
+          .then(
+            ({ data: profile }) => {
+              setIsAdmin(profile?.is_admin === true);
+            },
+            () => setIsAdmin(false)
+          );
       } else {
         setIsAdmin(false);
       }
@@ -76,15 +78,17 @@ export default function App() {
       setIsLoggedIn(!!session);
 
       if (session) {
-        supabase
+        void supabase
           .from('profiles')
           .select('is_admin')
           .eq('id', session.user.id)
           .single()
-          .then(({ data: profile }) => {
-            setIsAdmin(profile?.is_admin === true);
-          })
-          .catch(() => setIsAdmin(false));
+          .then(
+            ({ data: profile }) => {
+              setIsAdmin(profile?.is_admin === true);
+            },
+            () => setIsAdmin(false)
+          );
       } else {
         setIsAdmin(false);
       }

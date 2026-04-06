@@ -116,7 +116,9 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
               presentation="date"
               value={formData.date}
               onIonChange={(e) => {
-                const selectedDate = e.detail.value?.split('T')[0];
+                const raw = e.detail.value;
+                const valueStr = Array.isArray(raw) ? raw[0] : raw;
+                const selectedDate = valueStr?.split('T')[0];
                 handleInputChange('date', selectedDate || '');
               }}
             />

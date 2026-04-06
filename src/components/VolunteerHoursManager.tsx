@@ -11,6 +11,14 @@ import { supabase } from '../../lib/supabase';
 import { add, time } from 'ionicons/icons';
 import AddVolunteerHoursForm from './AddVolunteerHoursForm';
 import { HourEntry } from '../types/volunteerTypes';
+
+type EditingHourFormState = {
+  id: number;
+  date: string;
+  hours: string;
+  typeId: string;
+  locationId: string;
+};
 import VolunteerHoursGroupedByMonth from './VolunteerHoursGroupedByMonth';
 import VolunteerHoursGroupedByMonthSkeleton from './VolunteerHoursGroupedByMonthSkeleton';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -40,7 +48,7 @@ const VolunteerHoursManager: React.FC<VolunteerHoursManagerProps> = ({ userId })
     deleteHourEntry,
   } = useVolunteerHours(userId);
   const [showModal, setShowModal] = useState(false);
-  const [editEntry, setEditEntry] = useState<HourEntry | null>(null);
+  const [editEntry, setEditEntry] = useState<EditingHourFormState | null>(null);
   const [eventTypes, setEventTypes] = useState<{ id: number; name: string }[]>([]);
   const [eventLocations, setEventLocations] = useState<{ id: number; name: string }[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -170,7 +178,7 @@ const VolunteerHoursManager: React.FC<VolunteerHoursManagerProps> = ({ userId })
             onSubmit={handleSubmitForm}
             onCancel={() => setShowModal(false)}
             onDelete={handleDeleteEntry}
-            initialData={editEntry}
+            initialData={editEntry ?? undefined}
           />
         </IonContent>
       </IonModal>
