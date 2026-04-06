@@ -1,4 +1,4 @@
-import { Redirect, Route } from 'react-router-dom'
+import { Redirect, Route, useHistory } from 'react-router-dom'
 import { IonApp, IonLabel, IonIcon, IonRouterOutlet, IonTabBar, IonTabButton, setupIonicReact, IonTabs } from '@ionic/react'
 import { IonReactRouter } from '@ionic/react-router'
 import { supabase } from '../lib/supabase'
@@ -22,6 +22,8 @@ import AllVolunteerHoursPage from './pages/admin/view/AllVolunteerHoursPage'
 
 setupIonicReact()
 
+const routerBasename = import.meta.env.BASE_URL.replace(/\/$/, '') || undefined
+
 // Add Capacitor App event listeners
 CapacitorApp.addListener('appStateChange', ({ isActive }) => {
   console.log('App state changed. Is active?', isActive);
@@ -38,6 +40,7 @@ CapacitorApp.addListener('appRestoredResult', data => {
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null)
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null) // <-- Use null for loading state
+  const history = useHistory();
 
   const setupStatusBar = async () => {
     await StatusBar.setBackgroundColor({ color: '#ffffff' });
@@ -103,16 +106,16 @@ export default function App() {
 
   return (
     <IonApp>
-      <IonReactRouter>
+      <IonReactRouter basename={routerBasename}>
         <IonTabs>
           <IonRouterOutlet>
-            <Route exact path="/:tab(volunteer)" component={VolunteerPage} />
-            <Route exact path="/:tab(admin)" component={AdminPage} />
-            <Route exact path="/:tab(admin)/view/all-volunteer-hours" component={AllVolunteerHoursPage} />
-            <Route exact path="/:tab(admin)/manage/users" component={ManageUsersPage} />
-            <Route exact path="/:tab(admin)/manage/activities" component={ManageActivitiesPage} />
-            <Route exact path="/:tab(admin)/manage/locations" component={ManageLocationsPage} />
-            <Route exact path="/:tab(account)" component={AccountPage} />
+            <Route exact path="/volunteer" component={VolunteerPage} />
+            <Route exact path="/admin" component={AdminPage} />
+            <Route exact path="/admin/view/all-volunteer-hours" component={AllVolunteerHoursPage} />
+            <Route exact path="/admin/manage/users" component={ManageUsersPage} />
+            <Route exact path="/admin/manage/activities" component={ManageActivitiesPage} />
+            <Route exact path="/admin/manage/locations" component={ManageLocationsPage} />
+            <Route exact path="/account" component={AccountPage} />
             <Redirect exact from="/" to="/volunteer" />
           </IonRouterOutlet>
           {isLoggedIn && isAdmin && (
@@ -121,7 +124,7 @@ export default function App() {
                 <IonIcon icon={timeOutline} />
                 <IonLabel>Hours</IonLabel>
               </IonTabButton>
-              <IonTabButton tab="admin" href="/admin">
+              <IonTabButton tab="admin" href="/admin" >
                 <IonIcon icon={shieldOutline} />
                 <IonLabel>Admin</IonLabel>
               </IonTabButton>
