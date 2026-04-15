@@ -3,16 +3,19 @@ import {
   IonButton,
   IonContent,
   IonHeader,
+  IonIcon,
   IonInput,
   IonItem,
   IonLabel,
   IonModal,
+  IonText,
   IonTitle,
   IonToolbar,
   useIonToast,
   useIonLoading,
 } from '@ionic/react';
-import { supabase } from '../../lib/supabase';
+import { logoGoogle } from 'ionicons/icons';
+import { getOAuthRedirectUrl, supabase } from '../../lib/supabase';
 import { useHistory } from 'react-router-dom';
 import paws from '../assets/paws.png';
 
@@ -47,6 +50,31 @@ export function LoginPage() {
       }
     } catch (e: any) {
       await showToast({ message: e.message, duration: 5000 });
+    } finally {
+      await hideLoading();
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await showLoading();
+      const redirectTo = getOAuthRedirectUrl();
+      if (!redirectTo) {
+        await showToast({
+          message: 'OAuth redirect URL is not configured.',
+          duration: 5000,
+          color: 'danger',
+        });
+        return;
+      }
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo },
+      });
+      if (error) throw error;
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Google sign-in failed';
+      await showToast({ message, duration: 5000, color: 'danger' });
     } finally {
       await hideLoading();
     }
@@ -178,6 +206,27 @@ export function LoginPage() {
             size='default'
           >
             Create Account
+          </IonButton>
+
+          <div
+            className="ion-margin-vertical"
+            style={{ display: 'flex', alignItems: 'center', gap: 12 }}
+          >
+            <div style={{ flex: 1, height: 1, background: 'var(--ion-color-step-150, #ddd)' }} />
+            <IonText color="medium">
+              <span style={{ fontSize: '0.85rem' }}>or</span>
+            </IonText>
+            <div style={{ flex: 1, height: 1, background: 'var(--ion-color-step-150, #ddd)' }} />
+          </div>
+
+          <IonButton
+            expand="block"
+            type="button"
+            fill="outline"
+            onClick={handleGoogleSignIn}
+          >
+            <IonIcon slot="start" icon={logoGoogle} aria-hidden />
+            Continue with Google
           </IonButton>
         </div>
       </form>

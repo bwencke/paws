@@ -3,5 +3,4 @@
     <string name="app_name">PAWS</string>
     <string name="title_activity_main">PAWS</string>
     <string name="package_name">com.hancockpaws.app</string>
-    <string name="custom_url_scheme">com.hancockpaws.appp</string>
 </resources>
