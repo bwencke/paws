@@ -139,7 +139,16 @@ export function LoginPage() {
 
       console.log('Supabase signUp result:', { data, error });
 
-      if (error) throw error;
+      if (error) {
+        await showToast({
+          message:
+            'Sign up failed. Please check that your invite code is valid, then try again.',
+          duration: 6000,
+          color: 'danger',
+        });
+        return;
+      }
+
       setShowCreateModal(false);
       await showToast({ message: 'Account created!', duration: 5000, color: 'success' });
       // Optionally, you can auto-login or redirect here
@@ -147,8 +156,9 @@ export function LoginPage() {
       if (data.session) {
         history.replace('/volunteer');
       }
-    } catch (e: any) {
-      await showToast({ message: e.message, duration: 5000, color: 'danger' });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Something went wrong';
+      await showToast({ message, duration: 5000, color: 'danger' });
     } finally {
       await hideLoading();
     }
