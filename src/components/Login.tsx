@@ -34,6 +34,7 @@ export function LoginPage() {
   const [createPhone, setCreatePhone] = useState('');
   const [createEmail, setCreateEmail] = useState('');
   const [createPassword, setCreatePassword] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -85,7 +86,7 @@ export function LoginPage() {
     e.preventDefault();
     await showLoading();
     try {
-      if (!createEmail || !createPassword || !firstName || !lastName || !createPhone) {
+      if (!createEmail || !createPassword || !firstName || !lastName || !createPhone || !inviteCode.trim()) {
         await showToast({ message: 'Please fill out all fields.', duration: 4000, color: 'danger' });
         return;
       }
@@ -131,6 +132,7 @@ export function LoginPage() {
             last_name: lastName,
             email: createEmail,
             phone: formattedPhone,
+            invite_code: inviteCode.trim(),
           }
         }
       });
@@ -155,6 +157,7 @@ export function LoginPage() {
   // When opening modal, copy email from login form if present
   const openCreateModal = () => {
     setCreateEmail(email);
+    setInviteCode('');
     setShowCreateModal(true);
   };
 
@@ -284,6 +287,14 @@ export function LoginPage() {
                 type="password"
                 required
                 minlength={6}
+              />
+            </IonItem>
+            <IonItem>
+              <IonLabel position="stacked">Invite Code</IonLabel>
+              <IonInput
+                value={inviteCode}
+                onIonInput={e => setInviteCode(e.detail.value ?? '')}
+                required
               />
             </IonItem>
             <div className="ion-padding" style={{ marginTop: 16 }}>
