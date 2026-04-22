@@ -75,3 +75,13 @@ ion-datetime {
   --background: var(--ion-background-color);
   --ion-color-light: red; /* Set the days of the week to red */
 }
+
+/* Volunteer hours duration picker (sheet modal) */
+ion-modal.duration-picker-modal {
+	--height: 33%;
+	align-items: end;
+}
+
+ion-modal.duration-picker-modal ion-picker {
+	margin-bottom: var(--ion-safe-area-bottom);
+}
