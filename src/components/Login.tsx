@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   IonButton,
   IonContent,
@@ -35,6 +35,28 @@ export function LoginPage() {
   const [createEmail, setCreateEmail] = useState('');
   const [createPassword, setCreatePassword] = useState('');
   const [inviteCode, setInviteCode] = useState('');
+
+  useEffect(() => {
+    try {
+      const err = sessionStorage.getItem('paws_auth_redirect_error');
+      if (err) {
+        sessionStorage.removeItem('paws_auth_redirect_error');
+        void showToast({ message: err, duration: 8000, color: 'danger' });
+      }
+      const incomplete = sessionStorage.getItem('paws_oauth_incomplete');
+      if (incomplete) {
+        sessionStorage.removeItem('paws_oauth_incomplete');
+        void showToast({
+          message:
+            'Google sign-in could not finish in this browser. Start “Continue with Google” again and complete it in the same window (avoid opening the login page in a new tab before you finish). On the native app, you may need an in-app browser or deep-link setup so the return URL loads in the same WebView.',
+          duration: 12000,
+          color: 'danger',
+        });
+      }
+    } catch {
+      /* sessionStorage unavailable */
+    }
+  }, [showToast]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

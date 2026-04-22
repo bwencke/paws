@@ -22,3 +22,63 @@ export function getOAuthRedirectUrl(): string {
   const pathname = path.startsWith('/') ? path : `/${path}`
   return new URL(pathname, window.location.origin).href
 }
+
+function decodeOAuthErrorMessage(raw: string): string {
+  try {
+    return decodeURIComponent(raw.replace(/\+/g, ' '))
+  } catch {
+    return raw.replace(/\+/g, ' ')
+  }
+}
+
+/**
+ * Run once before React mounts so PKCE / implicit OAuth callbacks are processed
+ * before any component reads auth state. Cleans leftover query params and
+ * stores one-shot messages for the login UI (see Login.tsx).
+ */
+export async function bootstrapOAuthRedirect(): Promise<void> {
+  if (typeof window === 'undefined') return
+
+  await supabase.auth.getSession()
+
+  const url = new URL(window.location.href)
+  const rawError =
+    url.searchParams.get('error_description') ?? url.searchParams.get('error')
+  const oauthError = rawError ? decodeOAuthErrorMessage(rawError) : null
+
+  let needsReplace = false
+
+  if (oauthError) {
+    try {
+      sessionStorage.setItem('paws_auth_redirect_error', oauthError)
+    } catch {
+      /* ignore */
+    }
+    url.searchParams.delete('error')
+    url.searchParams.delete('error_description')
+    url.searchParams.delete('error_code')
+    needsReplace = true
+  }
+
+  // If `code` is still present, PKCE exchange did not run (e.g. missing
+  // code_verifier — common when the OAuth flow finishes in another browser).
+  if (url.searchParams.has('code')) {
+    try {
+      sessionStorage.setItem('paws_oauth_incomplete', '1')
+    } catch {
+      /* ignore */
+    }
+    url.searchParams.delete('code')
+    url.searchParams.delete('state')
+    needsReplace = true
+  }
+
+  if (needsReplace) {
+    const qs = url.searchParams.toString()
+    window.history.replaceState(
+      window.history.state,
+      '',
+      url.pathname + (qs ? `?${qs}` : '') + url.hash
+    )
+  }
+}
