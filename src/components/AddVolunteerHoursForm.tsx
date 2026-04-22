@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   IonItem,
   IonLabel,
-  IonInput,
   IonSelect,
   IonSelectOption,
   IonDatetime,
@@ -17,6 +16,7 @@ import {
   IonButtons,
   IonIcon,
 } from '@ionic/react';
+import { pickerController } from '@ionic/core';
 import { trash } from 'ionicons/icons';
 import ThankYouModal from './ThankYouModal';
 
@@ -47,6 +47,31 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
   onDelete, // Add this prop
   initialData, // Receive initial data for editing
 }) => {
+  const minuteStepOptions = [0, 15, 30, 45];
+  const getHourLabel = (value: number) => `${value} ${value === 1 ? 'Hour' : 'Hours'}`;
+  const getMinuteLabel = (value: number) => `${value} Minutes`;
+
+  const getDurationPartsFromHours = (hoursValue: string) => {
+    const parsed = Number.parseFloat(hoursValue);
+    if (Number.isNaN(parsed) || parsed <= 0) {
+      return { hours: 0, minutes: 0 };
+    }
+
+    const totalMinutes = Math.round(parsed * 60);
+    const hours = Math.min(23, Math.floor(totalMinutes / 60));
+    const rawMinutes = totalMinutes % 60;
+    const minutes = minuteStepOptions.reduce((closest, option) =>
+      Math.abs(option - rawMinutes) < Math.abs(closest - rawMinutes) ? option : closest
+    , minuteStepOptions[0]);
+
+    return { hours, minutes };
+  };
+
+  const getHoursFromDurationParts = (hours: number, minutes: number) => {
+    const totalHours = hours + minutes / 60;
+    return totalHours.toString();
+  };
+
   const [formData, setFormData] = useState({
     date:
       initialData?.date ||
@@ -67,6 +92,47 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
 
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [showThankYou, setShowThankYou] = useState(false);
+  const selectedDuration = getDurationPartsFromHours(formData.hours);
+  const hoursDisplayValue = `${selectedDuration.hours}h ${selectedDuration.minutes.toString().padStart(2, '0')}m`;
+
+  const openHoursPicker = async () => {
+    const picker = await pickerController.create({
+      columns: [
+        {
+          name: 'hours',
+          options: Array.from({ length: 24 }, (_, index) => ({
+            text: getHourLabel(index),
+            value: index,
+          })),
+          selectedIndex: selectedDuration.hours,
+        },
+        {
+          name: 'minutes',
+          options: minuteStepOptions.map((minutes) => ({
+            text: getMinuteLabel(minutes),
+            value: minutes,
+          })),
+          selectedIndex: minuteStepOptions.indexOf(selectedDuration.minutes),
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+        },
+        {
+          text: 'Confirm',
+          handler: (value: any) => {
+            const selectedHours = Number(value.hours?.value ?? 0);
+            const selectedMinutes = Number(value.minutes?.value ?? 0);
+            handleInputChange('hours', getHoursFromDurationParts(selectedHours, selectedMinutes));
+          },
+        },
+      ],
+    });
+
+    await picker.present();
+  };
 
   const validateForm = () => {
     const newErrors = {
@@ -125,15 +191,25 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
             {errors.date && <p style={{ color: 'red', fontSize: '12px' }}>{errors.date}</p>}
           </IonItem>
           <IonItem>
-            <IonLabel>
-              <IonInput
-                label="Hours"
-                labelPlacement="stacked"
-                placeholder="Enter how many hours you volunteered"
-                type="number"
-                value={formData.hours}
-                onIonChange={(e) => handleInputChange('hours', e.detail.value!)}
-              />
+            <IonLabel style={{ display: 'block', width: '100%' }}>
+              <div style={{ marginBottom: '6px', fontSize: '14px', fontWeight: 400 }}>Duration</div>
+              <IonButton
+                size="small"
+                expand="block"
+                fill="clear"
+                onClick={openHoursPicker}
+                style={{
+                  '--background': 'var(--ion-item-background, var(--ion-background-color, #fff))',
+                  '--color': 'var(--ion-text-color)',
+                  minHeight: '44px',
+                  fontSize: '1.125rem',
+                  textTransform: 'none',
+                  width: '100%',
+                  textAlign: 'left',
+                } as React.CSSProperties}
+              >
+                {hoursDisplayValue}
+              </IonButton>
               {errors.hours && <p style={{ color: 'red', fontSize: '12px' }}>{errors.hours}</p>}
             </IonLabel>
           </IonItem>
