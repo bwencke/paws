@@ -191,8 +191,10 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
             {errors.date && <p style={{ color: 'red', fontSize: '12px' }}>{errors.date}</p>}
           </IonItem>
           <IonItem>
-            <IonLabel style={{ display: 'block', width: '100%' }}>
-              <div style={{ marginBottom: '6px', fontSize: '14px', fontWeight: 400 }}>Duration</div>
+            <div style={{ width: '100%' }}>
+              <IonLabel style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: 400 }}>
+                Duration
+              </IonLabel>
               <IonButton
                 size="small"
                 expand="block"
@@ -211,7 +213,7 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
                 {hoursDisplayValue}
               </IonButton>
               {errors.hours && <p style={{ color: 'red', fontSize: '12px' }}>{errors.hours}</p>}
-            </IonLabel>
+            </div>
           </IonItem>
           <IonItem>
             <IonLabel>
