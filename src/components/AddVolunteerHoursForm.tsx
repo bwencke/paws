@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   IonItem,
   IonLabel,
@@ -15,8 +15,11 @@ import {
   IonAlert,
   IonButtons,
   IonIcon,
+  IonModal,
+  IonPicker,
+  IonPickerColumn,
+  IonPickerColumnOption,
 } from '@ionic/react';
-import { pickerController } from '@ionic/core';
 import { trash } from 'ionicons/icons';
 import ThankYouModal from './ThankYouModal';
 
@@ -92,46 +95,24 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
 
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [showThankYou, setShowThankYou] = useState(false);
+  const [showHoursPicker, setShowHoursPicker] = useState(false);
+  const [pickerHours, setPickerHours] = useState(0);
+  const [pickerMinutes, setPickerMinutes] = useState(0);
+  const hoursPickerModal = useRef<HTMLIonModalElement>(null);
   const selectedDuration = getDurationPartsFromHours(formData.hours);
   const hoursDisplayValue = `${selectedDuration.hours}h ${selectedDuration.minutes.toString().padStart(2, '0')}m`;
 
-  const openHoursPicker = async () => {
-    const picker = await pickerController.create({
-      columns: [
-        {
-          name: 'hours',
-          options: Array.from({ length: 24 }, (_, index) => ({
-            text: getHourLabel(index),
-            value: index,
-          })),
-          selectedIndex: selectedDuration.hours,
-        },
-        {
-          name: 'minutes',
-          options: minuteStepOptions.map((minutes) => ({
-            text: getMinuteLabel(minutes),
-            value: minutes,
-          })),
-          selectedIndex: minuteStepOptions.indexOf(selectedDuration.minutes),
-        },
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-        },
-        {
-          text: 'Confirm',
-          handler: (value: any) => {
-            const selectedHours = Number(value.hours?.value ?? 0);
-            const selectedMinutes = Number(value.minutes?.value ?? 0);
-            handleInputChange('hours', getHoursFromDurationParts(selectedHours, selectedMinutes));
-          },
-        },
-      ],
-    });
+  const openHoursPicker = () => {
+    setPickerHours(selectedDuration.hours);
+    setPickerMinutes(selectedDuration.minutes);
+    setShowHoursPicker(true);
+  };
 
-    await picker.present();
+  const confirmHoursPicker = () => {
+    hoursPickerModal.current?.dismiss(
+      { hours: pickerHours, minutes: pickerMinutes },
+      'confirm'
+    );
   };
 
   const validateForm = () => {
@@ -304,6 +285,54 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
       {showThankYou && (
         <ThankYouModal onDismiss={closeThankYou} />
       )}
+      <IonModal
+        ref={hoursPickerModal}
+        isOpen={showHoursPicker}
+        initialBreakpoint={0.45}
+        breakpoints={[0, 0.45]}
+        onDidDismiss={(event) => {
+          if (event.detail.role === 'confirm') {
+            const selectedHours = Number(event.detail.data?.hours ?? pickerHours);
+            const selectedMinutes = Number(event.detail.data?.minutes ?? pickerMinutes);
+            handleInputChange('hours', getHoursFromDurationParts(selectedHours, selectedMinutes));
+          }
+          setShowHoursPicker(false);
+        }}
+      >
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>Select Duration</IonTitle>
+            <IonButtons slot="end">
+              <IonButton onClick={() => hoursPickerModal.current?.dismiss(null, 'cancel')}>Cancel</IonButton>
+              <IonButton onClick={confirmHoursPicker}>Confirm</IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent>
+          <IonPicker>
+            <IonPickerColumn
+              value={pickerHours}
+              onIonChange={(event: any) => setPickerHours(Number(event.detail.value ?? 0))}
+            >
+              {Array.from({ length: 24 }, (_, index) => (
+                <IonPickerColumnOption key={index} value={index}>
+                  {getHourLabel(index)}
+                </IonPickerColumnOption>
+              ))}
+            </IonPickerColumn>
+            <IonPickerColumn
+              value={pickerMinutes}
+              onIonChange={(event: any) => setPickerMinutes(Number(event.detail.value ?? 0))}
+            >
+              {minuteStepOptions.map((minutes) => (
+                <IonPickerColumnOption key={minutes} value={minutes}>
+                  {getMinuteLabel(minutes)}
+                </IonPickerColumnOption>
+              ))}
+            </IonPickerColumn>
+          </IonPicker>
+        </IonContent>
+      </IonModal>
     </IonPage>
   );
 };
