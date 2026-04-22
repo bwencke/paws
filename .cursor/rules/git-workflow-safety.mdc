@@ -1,0 +1,20 @@
+---
+description: Enforce branch-first workflow and test-before-commit/push
+alwaysApply: true
+---
+
+# Git Workflow Safety
+
+- Start new code changes on a new branch, not directly on `main`.
+- Before committing, run the project's relevant tests and make sure they pass.
+- If tests fail, fix failures before commit.
+
+## Quick Examples
+
+```bash
+# Create and switch to a new branch
+git checkout -b feature/short-description
+
+# Run tests before commit/push
+npm test
+```
