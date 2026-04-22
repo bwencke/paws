@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { timeOutline, shieldOutline } from 'ionicons/icons'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { App as CapacitorApp } from '@capacitor/app'
+import { Capacitor } from '@capacitor/core'
 
 import '@ionic/react/css/ionic.bundle.css'
 
@@ -43,13 +44,17 @@ export default function App() {
   const history = useHistory();
 
   const setupStatusBar = async () => {
+    if (!Capacitor.isNativePlatform()) return;
+
     await StatusBar.setBackgroundColor({ color: '#ffffff' });
     await StatusBar.setStyle({ style: Style.Dark });
     await StatusBar.setOverlaysWebView({ overlay: false });
   };
 
   useEffect(() => {
-    setupStatusBar();
+    void setupStatusBar().catch(() => {
+      console.warn('StatusBar plugin unavailable on this platform.');
+    });
 
     // Check initial auth state
     supabase.auth.getSession().then(async ({ data: { session } }) => {
