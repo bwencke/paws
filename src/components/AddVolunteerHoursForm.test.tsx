@@ -23,7 +23,8 @@ describe('AddVolunteerHoursForm', () => {
       />
     );
     expect(screen.getByText(/Add Volunteer Hours/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/how many hours/i)).toBeInTheDocument();
+    expect(screen.getByText(/Duration/i)).toBeInTheDocument();
+    expect(screen.getByText(/0h 00m/i)).toBeInTheDocument();
     expect(screen.getByTestId('activity-select')).toBeInTheDocument();
     expect(screen.getByTestId('location-select')).toBeInTheDocument();
     expect(screen.getByText(/Submit/i)).toBeInTheDocument();
@@ -39,7 +40,6 @@ describe('AddVolunteerHoursForm', () => {
         onCancel={() => {}}
       />
     );
-    fireEvent.change(screen.getByPlaceholderText(/how many hours/i), { target: { value: '' } });
     fireEvent.click(screen.getByText(/Submit/i));
     expect(screen.getByText((content) => content.replace(/\s+/g, ' ').includes('Hours must be greater than 0'))).toBeInTheDocument();
     expect(screen.getByText((content) => content.replace(/\s+/g, ' ').includes('Event type is required'))).toBeInTheDocument();
@@ -76,7 +76,7 @@ describe('AddVolunteerHoursForm', () => {
       />
     );
 
-    expect(await screen.findByDisplayValue('3')).toBeInTheDocument();
+    expect(await screen.findByText(/3h 00m/i)).toBeInTheDocument();
     expect(screen.getByText(/Edit Volunteer Hours/i)).toBeInTheDocument();
   });
 
@@ -95,7 +95,6 @@ describe('AddVolunteerHoursForm', () => {
         }}
       />
     );
-    fireEvent.change(screen.getByPlaceholderText(/how many hours/i), { target: { value: '2' } });
     fireEvent.click(screen.getByText(/Update/i));
     expect(await screen.findByText((content) => content.replace(/\s+/g, ' ').includes('Thank You'))).toBeInTheDocument();
   });
