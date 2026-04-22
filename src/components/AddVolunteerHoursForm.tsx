@@ -158,7 +158,7 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
           </IonToolbar>
         </IonHeader>
         <IonList inset={true}>
-          <IonItem>
+          <IonItem lines="none">
             <IonDatetime
               presentation="date"
               value={formData.date}
@@ -172,8 +172,8 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
             {errors.date && <p style={{ color: 'red', fontSize: '12px' }}>{errors.date}</p>}
           </IonItem>
           <IonItem>
-            <div style={{ width: '100%' }}>
-              <IonLabel style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: 400 }}>
+            <div>
+              <IonLabel style={{ display: 'block', marginTop: '10px', marginBottom: '6px', fontSize: '14px', fontWeight: 400 }}>
                 Duration
               </IonLabel>
               <IonButton
@@ -287,9 +287,8 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
       )}
       <IonModal
         ref={hoursPickerModal}
+        className="duration-picker-modal"
         isOpen={showHoursPicker}
-        initialBreakpoint={0.45}
-        breakpoints={[0, 0.45]}
         onDidDismiss={(event) => {
           if (event.detail.role === 'confirm') {
             const selectedHours = Number(event.detail.data?.hours ?? pickerHours);
