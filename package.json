@@ -5,12 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "test": "vitest",
+    "test": "NODE_OPTIONS=--require=./vitest.polyfill.cjs vitest",
     "build": "tsc && vite build && cp dist/index.html dist/404.html",
     "deploy": "npm run build && gh-pages -d dist",
     "preview": "vite preview",
     "test.e2e": "cypress run",
-    "test.unit": "vitest",
+    "test.unit": "NODE_OPTIONS=--require=./vitest.polyfill.cjs vitest",
     "lint": "eslint"
   },
   "dependencies": {

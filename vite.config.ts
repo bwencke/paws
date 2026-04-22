@@ -4,6 +4,11 @@ import legacy from '@vitejs/plugin-legacy'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vite'
+import { webcrypto } from 'node:crypto'
+
+if (typeof globalThis.crypto === 'undefined' || typeof globalThis.crypto.getRandomValues !== 'function') {
+  globalThis.crypto = webcrypto as Crypto
+}
 
 /** Must match the GitHub Pages project path (repo name). */
 const GH_PAGES_BASE = '/paws/'
