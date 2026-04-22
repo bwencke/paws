@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   IonButton,
   IonContent,
@@ -34,6 +34,29 @@ export function LoginPage() {
   const [createPhone, setCreatePhone] = useState('');
   const [createEmail, setCreateEmail] = useState('');
   const [createPassword, setCreatePassword] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
+
+  useEffect(() => {
+    try {
+      const err = sessionStorage.getItem('paws_auth_redirect_error');
+      if (err) {
+        sessionStorage.removeItem('paws_auth_redirect_error');
+        void showToast({ message: err, duration: 8000, color: 'danger' });
+      }
+      const incomplete = sessionStorage.getItem('paws_oauth_incomplete');
+      if (incomplete) {
+        sessionStorage.removeItem('paws_oauth_incomplete');
+        void showToast({
+          message:
+            'Google sign-in could not finish in this browser. Start “Continue with Google” again and complete it in the same window (avoid opening the login page in a new tab before you finish). On the native app, you may need an in-app browser or deep-link setup so the return URL loads in the same WebView.',
+          duration: 12000,
+          color: 'danger',
+        });
+      }
+    } catch {
+      /* sessionStorage unavailable */
+    }
+  }, [showToast]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -85,7 +108,7 @@ export function LoginPage() {
     e.preventDefault();
     await showLoading();
     try {
-      if (!createEmail || !createPassword || !firstName || !lastName || !createPhone) {
+      if (!createEmail || !createPassword || !firstName || !lastName || !createPhone || !inviteCode.trim()) {
         await showToast({ message: 'Please fill out all fields.', duration: 4000, color: 'danger' });
         return;
       }
@@ -131,13 +154,23 @@ export function LoginPage() {
             last_name: lastName,
             email: createEmail,
             phone: formattedPhone,
+            invite_code: inviteCode.trim(),
           }
         }
       });
 
       console.log('Supabase signUp result:', { data, error });
 
-      if (error) throw error;
+      if (error) {
+        await showToast({
+          message:
+            'Sign up failed. Please check that your invite code is valid, then try again.',
+          duration: 6000,
+          color: 'danger',
+        });
+        return;
+      }
+
       setShowCreateModal(false);
       await showToast({ message: 'Account created!', duration: 5000, color: 'success' });
       // Optionally, you can auto-login or redirect here
@@ -145,8 +178,9 @@ export function LoginPage() {
       if (data.session) {
         history.replace('/volunteer');
       }
-    } catch (e: any) {
-      await showToast({ message: e.message, duration: 5000, color: 'danger' });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Something went wrong';
+      await showToast({ message, duration: 5000, color: 'danger' });
     } finally {
       await hideLoading();
     }
@@ -155,6 +189,7 @@ export function LoginPage() {
   // When opening modal, copy email from login form if present
   const openCreateModal = () => {
     setCreateEmail(email);
+    setInviteCode('');
     setShowCreateModal(true);
   };
 
@@ -284,6 +319,14 @@ export function LoginPage() {
                 type="password"
                 required
                 minlength={6}
+              />
+            </IonItem>
+            <IonItem>
+              <IonLabel position="stacked">Invite Code</IonLabel>
+              <IonInput
+                value={inviteCode}
+                onIonInput={e => setInviteCode(e.detail.value ?? '')}
+                required
               />
             </IonItem>
             <div className="ion-padding" style={{ marginTop: 16 }}>
