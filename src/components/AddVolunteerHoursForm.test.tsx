@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AddVolunteerHoursForm from './AddVolunteerHoursForm';
 import { vi } from 'vitest';
@@ -102,6 +102,7 @@ describe('AddVolunteerHoursForm', () => {
 
   it('shows Delete button and calls onDelete when editing', async () => {
     const onDelete = vi.fn();
+    const user = userEvent.setup();
     render(
       <AddVolunteerHoursForm
         eventTypes={eventTypes}
@@ -120,17 +121,19 @@ describe('AddVolunteerHoursForm', () => {
     expect(screen.getByText(/Edit Volunteer Hours/i)).toBeInTheDocument();
     const deleteButton = screen.getByTestId('delete-button');
     expect(deleteButton).toBeInTheDocument();
-    fireEvent.click(deleteButton);
+    await user.click(deleteButton);
     expect(await screen.findByText(/Are you sure you want to delete/i)).toBeInTheDocument();
     const deleteConfirmButton = screen.getAllByRole('button', { name: /Delete/i }).find(
       el => el.textContent && el.textContent.includes('Delete')
     );
     if (deleteConfirmButton) {
-      fireEvent.click(deleteConfirmButton);
+      await user.click(deleteConfirmButton);
     } else {
       throw new Error('Delete confirmation button not found');
     }
-    expect(onDelete).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(onDelete).toHaveBeenCalled();
+    });
   });
 
   it('shows Update button when editing', () => {
