@@ -300,9 +300,11 @@ const AddVolunteerHoursForm: React.FC<AddVolunteerHoursFormProps> = ({
       >
         <IonHeader>
           <IonToolbar>
-            <IonTitle>Select Duration</IonTitle>
-            <IonButtons slot="end">
+          <IonButtons slot="start">
               <IonButton onClick={() => hoursPickerModal.current?.dismiss(null, 'cancel')}>Cancel</IonButton>
+            </IonButtons>
+            <IonTitle style={{ textAlign: 'center' }}>Select Duration</IonTitle>
+            <IonButtons slot="end">
               <IonButton onClick={confirmHoursPicker}>Confirm</IonButton>
             </IonButtons>
           </IonToolbar>
