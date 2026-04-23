@@ -78,7 +78,7 @@ ion-datetime {
 
 /* Volunteer hours duration picker (sheet modal) */
 ion-modal.duration-picker-modal {
-	--height: 33%;
+	--height: 250px;
 	align-items: end;
 }
 
