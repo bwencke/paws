@@ -14,12 +14,6 @@ import './theme/variables.css'
 import { AccountPage } from './pages/account/Account'
 import { useEffect, useState } from 'react'
 import VolunteerPage from './pages/volunteer/Volunteer'
-import AdminPage from './pages/admin/AdminPage'
-import ManageUsersPage from './pages/admin/manage/ManageUsersPage'
-import ManageActivitiesPage from './pages/admin/manage/ManageActivitiesPage'
-import ManageLocationsPage from './pages/admin/manage/ManageLocationsPage'
-import AllVolunteerHoursListPage from './pages/admin/view/AllVolunteerHoursPage'
-import AllVolunteerHoursPage from './pages/admin/view/AllVolunteerHoursPage'
 
 setupIonicReact()
 
@@ -119,26 +113,9 @@ export default function App() {
         <IonTabs>
           <IonRouterOutlet>
             <Route exact path="/volunteer" component={VolunteerPage} />
-            <Route exact path="/admin" component={AdminPage} />
-            <Route exact path="/admin/view/all-volunteer-hours" component={AllVolunteerHoursPage} />
-            <Route exact path="/admin/manage/users" component={ManageUsersPage} />
-            <Route exact path="/admin/manage/activities" component={ManageActivitiesPage} />
-            <Route exact path="/admin/manage/locations" component={ManageLocationsPage} />
             <Route exact path="/account" component={AccountPage} />
             <Redirect exact from="/" to="/volunteer" />
           </IonRouterOutlet>
-          {isLoggedIn && isAdmin && (
-            <IonTabBar slot="bottom" className="ion-tab-bar" data-testid="tab-bar">
-              <IonTabButton tab="volunteer" href="/volunteer">
-                <IonIcon icon={timeOutline} />
-                <IonLabel>Hours</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="admin" href="/admin" >
-                <IonIcon icon={shieldOutline} />
-                <IonLabel>Admin</IonLabel>
-              </IonTabButton>
-            </IonTabBar>
-          )}
         </IonTabs>
       </IonReactRouter>
     </IonApp>

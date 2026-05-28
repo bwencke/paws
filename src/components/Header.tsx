@@ -6,17 +6,34 @@ import {
   IonButton,
   IonIcon,
   IonBackButton,
+  IonSegment,
+  IonSegmentButton,
+  IonLabel,
 } from '@ionic/react';
 import { personCircleOutline } from 'ionicons/icons';
-import { useSupabaseUser } from '../hooks/useSupabaseUser'; // <-- import the hook
+import { useSupabaseSession } from '../hooks/useSupabaseSession'; // <-- import the hook
+
+type HeaderSegmentOption = {
+  value: string;
+  label: string;
+};
 
 interface HeaderProps {
   title: string;
   showBackButton?: boolean;
+  segmentValue?: string;
+  segmentOptions?: HeaderSegmentOption[];
+  onSegmentChange?: (value: string) => void;
 }
 
-export function Header({ title, showBackButton = true }: HeaderProps) {
-  const user = useSupabaseUser(); // <-- use the hook
+export function Header({
+  title,
+  showBackButton = true,
+  segmentValue,
+  segmentOptions,
+  onSegmentChange,
+}: HeaderProps) {
+  const userId = useSupabaseSession().user?.id; // <-- use the hook
 
   return (
     <IonHeader style={{ "--background": '--ion-background-color-step-500' }} data-testid="header">
@@ -26,7 +43,7 @@ export function Header({ title, showBackButton = true }: HeaderProps) {
         </IonButtons>
         <IonTitle>{title}</IonTitle>
         <IonButtons slot="end">
-          {user && <IonButton data-testid="account-button" routerLink="/account" fill="clear">
+          {userId && <IonButton data-testid="account-button" routerLink="/account" fill="clear">
             <IonIcon 
               icon={personCircleOutline} 
               slot="icon-only"
@@ -35,6 +52,17 @@ export function Header({ title, showBackButton = true }: HeaderProps) {
           </IonButton>}
         </IonButtons>
       </IonToolbar>
+      {segmentValue && segmentOptions && segmentOptions.length > 0 && onSegmentChange && (
+        <IonToolbar>
+          <IonSegment value={segmentValue} onIonChange={(event) => onSegmentChange(String(event.detail.value ?? ''))}>
+            {segmentOptions.map((option) => (
+              <IonSegmentButton key={option.value} value={option.value}>
+                <IonLabel>{option.label}</IonLabel>
+              </IonSegmentButton>
+            ))}
+          </IonSegment>
+        </IonToolbar>
+      )}
     </IonHeader>
   );
 }
