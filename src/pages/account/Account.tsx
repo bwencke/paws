@@ -6,10 +6,10 @@ import { useIonToast } from '@ionic/react';
 import { formatPhoneNumber } from '../../utils/formatPhone';
 import { mailOutline, callOutline } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
-import { useSupabaseUser } from '../../hooks/useSupabaseUser';
+import { useSupabaseSession } from '../../hooks/useSupabaseSession';
 
 export function AccountPage() {
-  const userId = useSupabaseUser();
+  const userId = useSupabaseSession().user?.id;
   const [profile, setProfile] = useState({
     first_name: '',
     last_name: '',
