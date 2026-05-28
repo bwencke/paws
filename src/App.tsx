@@ -1,8 +1,7 @@
-import { Redirect, Route, useHistory } from 'react-router-dom'
-import { IonApp, IonLabel, IonIcon, IonRouterOutlet, IonTabBar, IonTabButton, setupIonicReact, IonTabs } from '@ionic/react'
+import { Redirect, Route } from 'react-router-dom'
+import { IonApp, IonRouterOutlet, setupIonicReact, IonTabs } from '@ionic/react'
 import { IonReactRouter } from '@ionic/react-router'
 import { supabase } from '../lib/supabase'
-import { timeOutline, shieldOutline } from 'ionicons/icons'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { App as CapacitorApp } from '@capacitor/app'
 import { Capacitor } from '@capacitor/core'
@@ -34,8 +33,7 @@ CapacitorApp.addListener('appRestoredResult', data => {
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null)
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null) // <-- Use null for loading state
-  const history = useHistory();
+  const [authLoading, setAuthLoading] = useState(true)
 
   const setupStatusBar = async () => {
     if (!Capacitor.isNativePlatform()) return;
@@ -46,58 +44,53 @@ export default function App() {
   };
 
   useEffect(() => {
+    let mounted = true;
+
     void setupStatusBar().catch(() => {
       console.warn('StatusBar plugin unavailable on this platform.');
     });
 
-    // Check initial auth state
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setIsLoggedIn(!!session);
-
-      if (session) {
-        // Fetch user profile to check is_admin, but don't block UI
-        void supabase
-          .from('profiles')
-          .select('is_admin')
-          .eq('id', session.user.id)
-          .single()
-          .then(
-            ({ data: profile }) => {
-              setIsAdmin(profile?.is_admin === true);
-            },
-            () => setIsAdmin(false)
-          );
-      } else {
-        setIsAdmin(false);
+    const syncAuthState = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (mounted) {
+          setIsLoggedIn(!!session);
+        }
+      } catch {
+        if (mounted) {
+          setIsLoggedIn(false);
+        }
+      } finally {
+        if (mounted) {
+          setAuthLoading(false);
+        }
       }
-    });
+    };
+
+    // Check initial auth state
+    void syncAuthState();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsLoggedIn(!!session);
+      setAuthLoading(false);
+    });
 
-      if (session) {
-        void supabase
-          .from('profiles')
-          .select('is_admin')
-          .eq('id', session.user.id)
-          .single()
-          .then(
-            ({ data: profile }) => {
-              setIsAdmin(profile?.is_admin === true);
-            },
-            () => setIsAdmin(false)
-          );
-      } else {
-        setIsAdmin(false);
+    const appStateListener = CapacitorApp.addListener('appStateChange', ({ isActive }) => {
+      if (isActive) {
+        void syncAuthState();
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+      void appStateListener.then((listener) => listener.remove());
+    };
   }, []);
 
-  // Show loading spinner while checking auth/admin state
-  if (isLoggedIn === null || isAdmin === null) {
+  // Show loading spinner while checking auth state
+  if (authLoading || isLoggedIn === null) {
     return (
       <IonApp>
         <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
