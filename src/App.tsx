@@ -13,6 +13,7 @@ import './theme/variables.css'
 import { AccountPage } from './pages/account/Account'
 import { useEffect, useState } from 'react'
 import VolunteerPage from './pages/volunteer/Volunteer'
+import { BadgesPage } from './pages/badges/BadgesPage'
 
 setupIonicReact()
 
@@ -107,6 +108,7 @@ export default function App() {
           <IonRouterOutlet>
             <Route exact path="/volunteer" component={VolunteerPage} />
             <Route exact path="/account" component={AccountPage} />
+            <Route exact path="/badges" component={BadgesPage} />
             <Redirect exact from="/" to="/volunteer" />
           </IonRouterOutlet>
         </IonTabs>

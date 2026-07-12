@@ -10,7 +10,7 @@ import {
   IonSegmentButton,
   IonLabel,
 } from '@ionic/react';
-import { personCircleOutline } from 'ionicons/icons';
+import { personCircleOutline, ribbonOutline } from 'ionicons/icons';
 import { useSupabaseSession } from '../hooks/useSupabaseSession'; // <-- import the hook
 
 type HeaderSegmentOption = {
@@ -43,13 +43,24 @@ export function Header({
         </IonButtons>
         <IonTitle>{title}</IonTitle>
         <IonButtons slot="end">
-          {userId && <IonButton data-testid="account-button" routerLink="/account" fill="clear">
-            <IonIcon 
-              icon={personCircleOutline} 
-              slot="icon-only"
-              size="large"
-            />
-          </IonButton>}
+          {userId && (
+            <>
+              <IonButton data-testid="badges-button" routerLink="/badges" fill="clear">
+                <IonIcon
+                  icon={ribbonOutline}
+                  slot="icon-only"
+                  size="large"
+                />
+              </IonButton>
+              <IonButton data-testid="account-button" routerLink="/account" fill="clear">
+                <IonIcon
+                  icon={personCircleOutline}
+                  slot="icon-only"
+                  size="large"
+                />
+              </IonButton>
+            </>
+          )}
         </IonButtons>
       </IonToolbar>
       {segmentValue && segmentOptions && segmentOptions.length > 0 && onSegmentChange && (
